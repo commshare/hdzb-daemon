@@ -6,16 +6,58 @@
 #include "hdzb-server.h"
 #include "hdzb-serverDlg.h"
 #include "afxdialogex.h"
+#include "../src/CustomWinMsg.h"
+#include "tim.h"
+#include "tim_comm.h"
+#include "tim_int.h"
+#include "av_common.h"
+#include "../src/log4z.h"
+
+
+using namespace imcore;
+using namespace tencent::av;
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 
+static HWND g_hWndMain = NULL;
+
+// 定义登录消息回调 
+
+class LoginCallBack : public TIMCallBack 
+{
+	virtual void OnSuccess()
+	{
+		::PostMessage(g_hWndMain, WM_ON_LOGIN, (WPARAM)AV_OK, 0);
+	}
+
+	virtual void OnError(int retCode, const std::string &desc)
+	{
+		LOGFMTE("login error. code: %d, desc: %s", retCode, desc.c_str());
+		::PostMessage(g_hWndMain, WM_ON_LOGIN, (WPARAM)retCode, NULL);
+	}
+};
+
+
+
+class LogoutCallBack : public TIMCallBack 
+{
+	virtual void OnSuccess(){::PostMessage(g_hWndMain, WM_ON_LOGOUT, (WPARAM)AV_OK, 0);}
+	virtual void OnError(int retCode, const std::string &desc)
+	{
+		LOGFMTE("login error. code: %d, desc: %s", retCode, desc.c_str());
+		::PostMessage(g_hWndMain, WM_ON_LOGOUT, (WPARAM)retCode, retCode);
+	}
+};
+
+
+static LoginCallBack s_loginCallback;
+static LoginCallBack s_logoutCallback;
+
 // ChdzbserverDlg 对话框
-
-
-
 
 ChdzbserverDlg::ChdzbserverDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(ChdzbserverDlg::IDD, pParent)
@@ -31,6 +73,10 @@ void ChdzbserverDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(ChdzbserverDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+
+	ON_MESSAGE(WM_UI_CUSTOM, OnCustomMsg)
+	ON_MESSAGE(WM_ON_LOGIN, OnLogin)
+	ON_MESSAGE(WM_ON_LOGOUT, OnLogout)
 END_MESSAGE_MAP()
 
 
@@ -46,7 +92,9 @@ BOOL ChdzbserverDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
+	ShowWindow(SW_MINIMIZE);
+	m_manager = new Manager(this->m_hWnd);
+	m_manager->Init();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -84,5 +132,32 @@ void ChdzbserverDlg::OnPaint()
 HCURSOR ChdzbserverDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+LONG ChdzbserverDlg::OnCustomMsg( WPARAM wParam, LPARAM lParam )
+{
+	m_manager->Signal();
+	return 0;
+}
+
+LONG ChdzbserverDlg::OnLogout( WPARAM wParam, LPARAM lParam )
+{
+	int retCode = wParam;
+	TIMManager::get().Uninit();
+
+	m_manager->OnLogoutResult(retCode);
+	return 0;
+}
+
+LONG ChdzbserverDlg::OnLogin( WPARAM wParam, LPARAM lParam )
+{
+	LINE;
+	int retCode = wParam;
+	if (retCode == AV_OK) {
+		m_manager->StartAVSDK();
+	} else {
+		m_manager->OnLoginResult(retCode);
+	}
+	return 0;
 }
 
