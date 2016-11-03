@@ -21,25 +21,25 @@ SdkWrapper::SdkWrapper(void)
 	m_cameraParam.device_id = "";/*不指定id，代表每路视频都共用这组参数*/
 	m_cameraParam.width = 0;//VIDEO_RENDER_BIG_VIEW_WIDTH;
 	m_cameraParam.height = 0;//VIDEO_RENDER_BIG_VIEW_HEIGHT;
-	m_cameraParam.color_format = COLOR_FORMAT_RGB24;//SDK1.3版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
+	m_cameraParam.color_format = COLOR_FORMAT_I420;//SDK1.3版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
 	m_cameraParam.src_type = VIDEO_SRC_TYPE_CAMERA;//SDK1.3版本只支持VIDEO_SRC_TYPE_CAMERA
 
 	m_remoteVideoParam.device_id = "";/*不指定id，代表每路视频都共用这组参数*/
 	m_remoteVideoParam.width = 0;//VIDEO_RENDER_BIG_VIEW_WIDTH;
 	m_remoteVideoParam.height = 0;//VIDEO_RENDER_BIG_VIEW_HEIGHT;
-	m_remoteVideoParam.color_format = COLOR_FORMAT_RGB24;//SDK1.3版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
+	m_remoteVideoParam.color_format = COLOR_FORMAT_I420;//SDK1.3版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
 	m_remoteVideoParam.src_type = VIDEO_SRC_TYPE_CAMERA;//SDK1.3版本只支持VIDEO_SRC_TYPE_CAMERA
 
 	m_screenSendParam.device_id = "";/*不指定id，代表每路视频都共用这组参数*/
 	m_screenSendParam.width = 0;//VIDEO_RENDER_BIG_VIEW_WIDTH;
 	m_screenSendParam.height = 0;//VIDEO_RENDER_BIG_VIEW_HEIGHT;
-	m_screenSendParam.color_format = COLOR_FORMAT_RGB24;//SDK1.6版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
+	m_screenSendParam.color_format = COLOR_FORMAT_I420;//SDK1.6版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
 	m_screenSendParam.src_type = VIDEO_SRC_TYPE_SCREEN;//SDK1.6版本只支持VIDEO_SRC_TYPE_SCREEN
 
 	m_screenRecvParam.device_id = "";/*不指定id，代表每路视频都共用这组参数*/
 	m_screenRecvParam.width = 0;//VIDEO_RENDER_BIG_VIEW_WIDTH;
 	m_screenRecvParam.height = 0;//VIDEO_RENDER_BIG_VIEW_HEIGHT;
-	m_screenRecvParam.color_format = COLOR_FORMAT_RGB24;//SDK1.6版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
+	m_screenRecvParam.color_format = COLOR_FORMAT_I420;//SDK1.6版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
 	m_screenRecvParam.src_type = VIDEO_SRC_TYPE_SCREEN;//SDK1.6版本只支持VIDEO_SRC_TYPE_SCREEN
 
 	m_selectedMicId = "";
@@ -1511,7 +1511,7 @@ int SdkWrapper::DeviceTestOpenCamera()
 		param.device_id = "";/*不指定id，代表每路视频都共用这组参数*/
 		param.width = VIDEO_RENDER_BIG_VIEW_WIDTH;
 		param.height = VIDEO_RENDER_BIG_VIEW_HEIGHT;
-		param.color_format = COLOR_FORMAT_RGB24;//SDK1.3版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
+		param.color_format = COLOR_FORMAT_I420;//SDK1.3版本只支持COLOR_FORMAT_RGB24和COLOR_FORMAT_I420
 		param.src_type = VIDEO_SRC_TYPE_CAMERA;//SDK1.3版本只支持VIDEO_SRC_TYPE_CAMERA
 		pDevice->SetPreviewParam(param.device_id, param.width, param.height, param.color_format);
 	}
