@@ -1,0 +1,69 @@
+<html>
+<body>
+<input type="text" name="invite" id="invite">
+<input type="button" value="invite" onclick="invite()">
+<input type="button" value="Login" onclick="avsdk.Login()">
+<input type="button" value="Logout" onclick="avsdk.Logout()">
+<input type="button" value="EnterRoom" onclick="avsdk.EnterRoom(12586245)">
+<input type="button" value="ExitRoom" onclick="avsdk.ExitRoom()">
+<input type="button" value="OpenCamera" onclick="avsdk.OpenCamera()">
+<input type="button" value="CloseCamera" onclick="avsdk.CloseCamera()">
+<input type="button" value="OpenMic" onclick="avsdk.OpenMic()">
+<input type="button" value="CloseMic" onclick="avsdk.CloseMic()">
+<input type="button" value="OpenSpeaker" onclick="avsdk.OpenSpeaker()">
+<input type="button" value="CloseSpeaker" onclick="avsdk.CloseSpeaker()">
+<canvas id="local" width="400" height="400" style="border: 10px yellow solid"></canvas>
+<canvas id="remote" width="400" height="400" style="border: 10px yellow solid"></canvas>
+<script>
+
+function invite() {
+  var id = document.getElementById("invite").value
+  console.log(id)
+  avsdk.RequestViewList([id])
+}
+
+function EnterRoom() {
+  avsdk.Login();
+}
+
+var avsdk = require('./libs/avsdk.js');
+
+avsdk.Init({
+  sdk_app_id: 1104620500,
+  account_type: '107',
+  app_id_at3rd: '1104620500',
+  identifier: 'xsy357864',
+  user_sig: '123'
+});
+
+avsdk.OnMessage(function(data) {
+  console.log('recv: ', data.toString());
+  let json = JSON.parse(data.toString());
+  if (json.type === 'EndpointsUpdateInfo') {
+
+  }
+  // switch (json.type) {
+  //   case 'Login':
+  //     if (json.code === 0) {
+  //       console.log('login success, enter room.')
+  //       avsdk.EnterRoom(2456977);
+  //     }
+  //     break;
+  //   case 'EnterRoom':
+  //     if (json.code === 0) {
+  //       console.log('EnterRoom success.  open camera')
+  //         // avsdk.EnterRoom(2456977);
+  //       avsdk.OpenCamera();
+  //     }
+  //     break;
+  //   default:
+  //
+  // }
+});
+
+avsdk.StartRenderCameraView(document.getElementById("local"));
+avsdk.StartRenderRemoteView(6, document.getElementById("remote"));
+
+</script>
+</body>
+</html>
