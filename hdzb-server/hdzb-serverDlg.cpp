@@ -95,6 +95,7 @@ BOOL ChdzbserverDlg::OnInitDialog()
 	ShowWindow(SW_MINIMIZE);
 	m_manager = new Manager(this->m_hWnd);
 	m_manager->Init();
+	AfxGetApp()->m_lpCmdLine;
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 

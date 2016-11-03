@@ -40,14 +40,22 @@ void Manager::Login()
 // TODO: 发给外部进程，发给 recorder;
 void Manager::OnRemoteVideoCallback( VideoFrame *pFrameData )
 {
-	m_channel.SendStream(pFrameData, 0);
+	int index = 0;
+
+	{
+		SimpleAutoLock lock(&m_identifier2pipeLock);
+		if (m_identifier2pipe.count(pFrameData->identifier)) {
+			index = m_identifier2pipe[pFrameData->identifier];
+		} 
+	}
+
+	m_channel.SendStream(pFrameData, index);
 }
 
 // TODO: 发给外部进程，发给 recorder; 可能存在的画面尺寸转换。
 void Manager::OnLocalVideoCallback( VideoFrame *pFrameData )
 {
 	// user ---> index 
-	return;
 	m_channel.SendStream(pFrameData, 0);
 }
 
@@ -270,7 +278,7 @@ void Manager::OnEndpointsUpdateInfo( AVRoomMulti::EndpointEventId eventid, std::
 	}
 
 	json.AddProperty("param", param);
-	//m_channel.SendMsg(json);
+	m_channel.SendMsg(json);
 
 	//SendToFather(json.ToString());
 
@@ -288,7 +296,11 @@ void Manager::OnRequestViewListComplete( std::vector<std::string> identifierList
 
 void Manager::OnCancelAllViewCompleteCallback( int ret )
 {
-	// 不使用
+
+	{
+		SimpleAutoLock lock(&m_identifier2pipeLock);
+		m_identifier2pipe.clear();
+	}
 }
 
 void Manager::OnRecvChannel( char* buf, int size )
@@ -311,6 +323,9 @@ void Manager::RequestRemoteView( const vector<string>& ids )
 		view.video_src_type = VIDEO_SRC_TYPE_CAMERA;
 		views.push_back(view);
 		LOGD("");
+
+		SimpleAutoLock lock(&m_identifier2pipeLock);
+		m_identifier2pipe[ids[i]] = i + 1;
 	}
 	LOGD("");
 	int retCode = -1;

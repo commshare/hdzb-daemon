@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <queue>
+#include <map>
 
 using namespace imcore;
 using namespace ggicci;
@@ -127,6 +128,9 @@ private:
 
 	//
 	HWND& m_hWndMain;
+
+	SimpleLock m_identifier2pipeLock;
+	std::map<string, int> m_identifier2pipe;
 
 	// µÇÂ½×´Ì¬
 	//bool m_isLogin;
