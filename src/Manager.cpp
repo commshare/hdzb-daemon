@@ -1,5 +1,6 @@
 #include "Manager.h"
 #include "tim.h"
+#include "RecorderMgr/RecoderMgr.h"
 #include <io.h>
 #include <assert.h>
 #include <process.h>
@@ -50,6 +51,7 @@ void Manager::OnRemoteVideoCallback( VideoFrame *pFrameData )
 	}
 
 	m_channel.SendStream(pFrameData, index);
+	m_recorderMgr.OnRemoteVideoFrame(pFrameData);
 }
 
 // TODO: 发给外部进程，发给 recorder; 可能存在的画面尺寸转换。
@@ -57,6 +59,7 @@ void Manager::OnLocalVideoCallback( VideoFrame *pFrameData )
 {
 	// user ---> index 
 	m_channel.SendStream(pFrameData, 0);
+	m_recorderMgr.OnRemoteVideoFrame(pFrameData);
 }
 
 void Manager::Logout()
@@ -335,6 +338,7 @@ void Manager::RequestRemoteView( const vector<string>& ids )
 		retCode = CancelAllView();
 	} else {
 		retCode = RequestViewList(ids, views);
+		m_recorderMgr.UpdateRemoteViewsIndex(ids);
 	}
 
 	if (retCode != AV_OK) {
@@ -429,6 +433,7 @@ void Manager::OnProcessMsg( Json& obj )
 // TODO: 拿到各端音频数据进行混音
 int Manager::AudioDataCallback( AudioFrame* audio_frame, AVAudioCtrl::AudioDataSourceType src_type )
 {
+	m_recorderMgr.OnAudioFrame(audio_frame, src_type);
 	return AV_OK;
 }
 
@@ -455,6 +460,29 @@ void Manager::SendMsg( int retCode, const char* type )
 		json.AddProperty("code", Json(retCode));
 	}
 	m_channel.SendMsg(json);
+}
+
+bool Manager::StartRecord()
+{
+	EncoderParam param;
+	param.w = 640;
+	param.h = 480;
+	param.pic_format = AV_PIX_FMT_YUV420P;
+	param.video_bitrate = 400;
+	param.audio_bitate = 32;
+	param.channel = 1;
+	param.format = AV_SAMPLE_FMT_S16;
+
+	m_recorderMgr.SetAVParam(param);
+	m_recorderMgr.SetPicMode(4);
+	m_recorderMgr.Start();
+	return true;
+}
+
+bool Manager::StopRecord()
+{
+	m_recorderMgr.Stop();
+	return true;
 }
 
 int Channel::RecvMessage( char* buf, int size )

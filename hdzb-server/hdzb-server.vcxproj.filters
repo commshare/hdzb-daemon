@@ -16,6 +16,9 @@
     <Filter Include="src">
       <UniqueIdentifier>{a6b2a9a8-f7b6-472c-8438-c81be22cbd44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\recorder">
+      <UniqueIdentifier>{dbc505e2-ee6d-4219-9030-ea80c64fb1f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -60,6 +63,18 @@
     <ClInclude Include="..\src\Manager.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\RecorderMgr\header.h">
+      <Filter>src\recorder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\RecorderMgr\RecoderMgr.h">
+      <Filter>src\recorder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\RecorderMgr\AVEncoder.h">
+      <Filter>src\recorder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\RecorderMgr\AVStreamWriter.h">
+      <Filter>src\recorder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="hdzb-server.cpp">
@@ -82,6 +97,15 @@
     </ClCompile>
     <ClCompile Include="..\src\Manager.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\RecorderMgr\RecoderMgr.cpp">
+      <Filter>src\recorder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\RecorderMgr\AVEncoder.cpp">
+      <Filter>src\recorder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\RecorderMgr\AVStreamWriter.cpp">
+      <Filter>src\recorder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

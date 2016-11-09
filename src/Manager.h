@@ -4,6 +4,8 @@
 #include "log4z.h"
 #include "gci-json.h"
 #include "CustomWinMsg.h"
+#include "RecorderMgr/RecoderMgr.h"
+
 
 #include <vector>
 #include <queue>
@@ -17,6 +19,8 @@ using namespace zsummer::log4z;
 #define LINE LOGD("")
 
 class Manager;
+//class RecoderMgr;
+
 // 数据通道
 class Channel {
 	UINT32 m_iThreadID;
@@ -107,14 +111,16 @@ public:
 	void OnRequestViewListComplete(std::vector<std::string> identifierList, std::vector<View> viewList, int32 result); // 结果
 	void OnCancelAllViewCompleteCallback(int ret);
 
-
+	// record
+	bool StartRecord();
+	bool StopRecord();
+	
+private:
 	// 获取视频数据
 	virtual void OnRemoteVideoCallback(VideoFrame *pFrameData);
 	virtual void OnLocalVideoCallback(VideoFrame *pFrameData);
 	virtual int AudioDataCallback(AudioFrame* audio_frame, AVAudioCtrl::AudioDataSourceType src_type);
 	//
-private:
-
 private:
 	// 登陆相关信息
 	AVContext::StartParam m_startParam;
@@ -131,6 +137,7 @@ private:
 
 	SimpleLock m_identifier2pipeLock;
 	std::map<string, int> m_identifier2pipe;
+	RecoderMgr m_recorderMgr;
 
 	// 登陆状态
 	//bool m_isLogin;

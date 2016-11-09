@@ -29,7 +29,7 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
-    <CLRSupport>true</CLRSupport>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -48,8 +48,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\02 Git\hdzb\hdzb-server\libs\include;D:\02 Git\hdzb\hdzb-server\libs\include\avsdk;D:\02 Git\hdzb\hdzb-server\libs\include\common;D:\02 Git\hdzb\hdzb-server\libs\include\imsdk;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\02 Git\hdzb\hdzb-server\libs\win\release;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\02 Git\hdzb\hdzb-server\libs\include;D:\02 Git\hdzb\hdzb-server\libs\include\avsdk;D:\02 Git\hdzb\hdzb-server\libs\include\common;D:\02 Git\hdzb\hdzb-server\libs\include\imsdk;C:\tool\ffmpeg-2.8.6-win32-dev\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\02 Git\hdzb\hdzb-server\libs\win\release;C:\tool\ffmpeg-2.8.6-win32-dev\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -88,7 +88,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libtim.lib;qavsdk.lib</AdditionalDependencies>
+      <AdditionalDependencies>libtim.lib;qavsdk.lib;avcodec.lib;avfilter.lib;avutil.lib;avformat.lib;swscale.lib</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -111,6 +112,10 @@
     <ClInclude Include="..\src\gci-json.h" />
     <ClInclude Include="..\src\log4z.h" />
     <ClInclude Include="..\src\Manager.h" />
+    <ClInclude Include="..\src\RecorderMgr\AVEncoder.h" />
+    <ClInclude Include="..\src\RecorderMgr\AVStreamWriter.h" />
+    <ClInclude Include="..\src\RecorderMgr\header.h" />
+    <ClInclude Include="..\src\RecorderMgr\RecoderMgr.h" />
     <ClInclude Include="..\src\SdkWrapper.h" />
     <ClInclude Include="..\src\Util.h" />
     <ClInclude Include="hdzb-server.h" />
@@ -123,6 +128,9 @@
     <ClCompile Include="..\src\gci-json.cc" />
     <ClCompile Include="..\src\log4z.cpp" />
     <ClCompile Include="..\src\Manager.cpp" />
+    <ClCompile Include="..\src\RecorderMgr\AVEncoder.cpp" />
+    <ClCompile Include="..\src\RecorderMgr\AVStreamWriter.cpp" />
+    <ClCompile Include="..\src\RecorderMgr\RecoderMgr.cpp" />
     <ClCompile Include="..\src\SdkWrapper.cpp" />
     <ClCompile Include="hdzb-server.cpp" />
     <ClCompile Include="hdzb-serverDlg.cpp" />

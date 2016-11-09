@@ -523,7 +523,7 @@ int SdkWrapper::OpenCamera()
 
 
 	//视频渲染前，先设定渲染画面大小和颜色格式。这些参数设置只影响到渲染，不影响到编解码。
-	m_cameraParam.color_format = COLOR_FORMAT_I420;
+	//m_cameraParam.color_format = COLOR_FORMAT_I420;
 	pCamera->SetPreviewParam(m_cameraParam.device_id, m_cameraParam.width, m_cameraParam.height, m_cameraParam.color_format);
 	pCamera->SetPreviewCallback(&SdkWrapper::OnLocalVideoCallback, this);//获取设备的视频流
 	pCamera->SetPreTreatmentFun(&SdkWrapper::OnPreTreatmentFun, this);//设置预处理回调
