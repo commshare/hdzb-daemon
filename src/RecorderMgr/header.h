@@ -10,9 +10,8 @@
 
 //#define INT64_C
 //#define __STDC_CONSTANT_MACROS
-#include <stdint.h>
 #include "../log4z.h"
-
+#include <stdint.h>
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -42,140 +41,57 @@ extern "C" {
 
 enum MediaType { mediaAudio, mediaVideo, mediaUnknow };
 
-//static string get_error_text(const int error)
-//{
-//    char error_buffer[255];
-//    av_strerror(error, error_buffer, sizeof(error_buffer));
-//    return error_buffer;
-//}
+std::string get_error_text(const int error);
 
 class Packet
 {
 public:
-	Packet():m_type(mediaUnknow)
-	{
-		av_init_packet(&m_pkt);
-		m_pkt.data = NULL;
-		m_pkt.size = 0;
-	}
-	~Packet() { av_free_packet(&m_pkt); }
+	Packet();
+	~Packet();
+	AVPacket* c_pkt(void);// { return &m_pkt; }
 
-	AVPacket* c_pkt(void) { return &m_pkt; }
+	void setStreamIndex(int index);
+	int getStreamIndex(void);
+	MediaType getMediaType();
+	void setMediaType(MediaType type);
+	void updateTs(int64_t ts);
+	int64_t pts();
+	int64_t dts();
+	void rescale_ts(AVRational src, AVRational dst);
+	void debugTs(const char* tag, MediaType type);
+	void copy(Packet* pkt);
 
-	void setStreamIndex(int index) { m_pkt.stream_index = index; }
-	int getStreamIndex(void) { return m_pkt.stream_index; }
-	MediaType getMediaType() { return m_type; }
-	void setMediaType(MediaType type) { m_type = type; }
-	void updateTs(int64_t ts) { m_pkt.pts = m_pkt.dts = ts; }
-	int64_t pts() { return m_pkt.pts; }
-	int64_t dts() { return m_pkt.dts; }
-	void rescale_ts(AVRational src, AVRational dst)
-	{
-		m_pkt.pts = av_rescale_q(m_pkt.pts, src, dst);
-		m_pkt.dts = av_rescale_q(m_pkt.dts, src, dst);
-	}
-
-	void debugTs(const char* tag, MediaType type)
-	{
-		if (type == m_type)
-			LOGFMTI("[%s] %s: stream_index = %d, pts = %lli, dts = %lli, size = %d\n",
-			tag, type == mediaAudio ? "audio" : "video", m_pkt.stream_index, m_pkt.pts, m_pkt.dts, m_pkt.size);
-	}
-
-	void copy(Packet* pkt)
-	{
-		av_copy_packet(&m_pkt, pkt->c_pkt());
-		m_type = pkt->getMediaType();
-	}
 private:
 	MediaType m_type;
 	AVPacket m_pkt;
 };
 
+
+
 class Frame
 {
 public:
-	Frame() : m_type(mediaUnknow)
-	{
-		m_frame = av_frame_alloc();
-		assert(m_frame);
-	}
-	~Frame() { free(); }
+	Frame();
+	~Frame();
 
-	void free() { if (m_frame) { av_frame_free(&m_frame); } }
+	void free();
 
-	AVFrame* c_frame(void) { return m_frame; }
+	AVFrame* c_frame(void);
 
-	bool allocBuffer(int nb_samples, int channel_layout, AVSampleFormat sample_fmt, int sample_rate)
-	{
-		m_frame->nb_samples = nb_samples;
-		m_frame->channel_layout = channel_layout;
-		m_frame->format = sample_fmt;
-		m_frame->sample_rate = sample_rate;
-		m_frame->channels = av_get_channel_layout_nb_channels(channel_layout);
+	bool allocBuffer(int nb_samples, int channel_layout, AVSampleFormat sample_fmt, int sample_rate);
 
-		/**
-		* Allocate the samples of the created frame. This call will make
-		* sure that the audio frame can hold as many samples as specified.
-		*/
-		if (av_frame_get_buffer(m_frame, 0) < 0) {
-			av_log(NULL, AV_LOG_ERROR, "allocate audio frame buffer failed\n");
-			return false;
-		}
+	void debugAudio();
 
-		return true;
-	}
+	bool allocBuffer(enum AVPixelFormat pix_fmt, int width, int height);
 
-	void debugAudio()
-	{
-		LOGFMTI("nb_samples:%d, sample_rate:%d, format:%d, channel_layout:%0x, channels:%d\n",
-			m_frame->nb_samples, m_frame->sample_rate, m_frame->format, m_frame->channel_layout, m_frame->channels);
-	}
+	void melanism();
 
-	bool allocBuffer(enum AVPixelFormat pix_fmt, int width, int height)
-	{
-		m_frame->width = width;
-		m_frame->height = height;
-		m_frame->format = (AVSampleFormat)pix_fmt;
+	MediaType getMediaType();
+	void setMediaType(MediaType type);
 
-		if (av_frame_get_buffer(m_frame, 32) < 0) {
-			av_log(NULL, AV_LOG_ERROR, "allocate video frame buffer failed\n");
-			return false;
-		}
+	void setFramePts(int64_t ts);
 
-		return true;
-	}
-
-	void melanism()
-	{
-		for (int plane = 0; plane < 3; plane++) {
-			uint8_t* pdata = m_frame->data[plane];
-			int linesize = m_frame->linesize[plane];
-			int height = m_frame->height;
-			if (plane > 0) {
-				height = height / 2;
-				memset(pdata, 128, linesize * height);
-				//break;
-			} else {
-				memset(pdata, 16, linesize * height);
-			}
-		}
-	}
-
-
-	MediaType getMediaType() { return m_type; }
-	void setMediaType(MediaType type) { m_type = type; }
-
-	void setFramePts(int64_t ts)
-	{
-		m_frame->pts = ts;
-	}
-
-	void copy(Frame* f)
-	{
-		av_frame_copy(m_frame, f->c_frame());
-		m_type = f->getMediaType();
-	}
+	void copy(Frame* f);
 private:
 	MediaType m_type;
 	AVFrame* m_frame;
@@ -184,49 +100,22 @@ private:
 class AudioFifo
 {
 public:
-	AudioFifo() :m_af(NULL), m_isAllocated(false) {}
-	~AudioFifo()
-	{
-		if (m_af)
-		{ av_audio_fifo_free(m_af); }
-	}
+	AudioFifo();
+	~AudioFifo();
 
-	bool hasAllocated() { return m_isAllocated; }
-	bool alloc(enum AVSampleFormat sample_fmt, int channels, int nb_samples)
-	{
-		m_af = av_audio_fifo_alloc(sample_fmt, channels, nb_samples);
-		if (m_af) {
-			m_isAllocated = true;
-			return true;
-		} else {
-			return false;
-		}
-	}
 
-	bool realloc(int nb_sample)
-	{
-		return !av_audio_fifo_realloc(m_af, nb_sample);
-	}
+	bool hasAllocated();
+	bool alloc(enum AVSampleFormat sample_fmt, int channels, int nb_samples);
 
-	int read(void** data, int nb_sample)
-	{
-		return av_audio_fifo_read(m_af, data, nb_sample);
-	}
+	bool realloc(int nb_sample);
 
-	int write(void** data, int nb_sample)
-	{
-		return av_audio_fifo_write(m_af, data, nb_sample);
-	}
+	int read(void** data, int nb_sample);
 
-	int size()
-	{
-		return av_audio_fifo_size(m_af);
-	}
+	int write(void** data, int nb_sample);
 
-	int space()
-	{
-		return av_audio_fifo_space(m_af);
-	}
+	int size();
+
+	int space();
 
 private:
 	AVAudioFifo* m_af;

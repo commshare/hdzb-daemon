@@ -14,7 +14,14 @@ using namespace ggicci;
 
 // Frame --> buffer --> mix --> encoder --> onavpacket --> send.
 
-class RecoderMgr
+
+#ifdef DLL_IMPLEMENT  
+#define DLL_API __declspec(dllexport)  
+#else  
+#define DLL_API __declspec(dllimport)  
+#endif  
+
+class DLL_API RecoderMgr
 {
 public:
 	RecoderMgr(void);

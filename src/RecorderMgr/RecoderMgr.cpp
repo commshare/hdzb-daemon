@@ -1,4 +1,7 @@
+#define DLL_IMPLEMENT   
+
 #include "RecoderMgr.h"
+#include <tchar.h>
 
 static const int max_person_size = 4;
 
@@ -32,6 +35,12 @@ RecoderMgr::RecoderMgr(void)
 	m_recordStat = false;
 	m_rawVideoFrames.resize(max_person_size);
 	m_rawAudioFifo.resize(max_person_size);
+
+	//HMODULE hMoude = ::LoadLibrary(_T("avcodec-56.dll"));
+	//hMoude = ::LoadLibrary(_T("avformat-56.dll"));
+	//hMoude = ::LoadLibrary(_T("avutil-54.dll"));
+	//hMoude = ::LoadLibrary(_T("swscale-3.dll"));
+
 }
 
 void RecoderMgr::OnRemoteVideoFrame( VideoFrame *pFrameData )

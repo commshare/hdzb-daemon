@@ -26,7 +26,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CLRSupport>false</CLRSupport>
@@ -49,7 +49,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>D:\02 Git\hdzb\hdzb-server\libs\include;D:\02 Git\hdzb\hdzb-server\libs\include\avsdk;D:\02 Git\hdzb\hdzb-server\libs\include\common;D:\02 Git\hdzb\hdzb-server\libs\include\imsdk;C:\tool\ffmpeg-2.8.6-win32-dev\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\02 Git\hdzb\hdzb-server\libs\win\release;C:\tool\ffmpeg-2.8.6-win32-dev\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\02 Git\hdzb\hdzb-server\libs\win\release;C:\tool\ffmpeg-2.8.6-win32-dev\lib;D:\02 Git\hdzb\hdzb-server\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -82,14 +82,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libtim.lib;qavsdk.lib;avcodec.lib;avfilter.lib;avutil.lib;avformat.lib;swscale.lib</AdditionalDependencies>
+      <AdditionalDependencies>libtim.lib;FFRecMgrDll.lib</AdditionalDependencies>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <DelayLoadDLLs>
+      </DelayLoadDLLs>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -114,7 +117,6 @@
     <ClInclude Include="..\src\Manager.h" />
     <ClInclude Include="..\src\RecorderMgr\AVEncoder.h" />
     <ClInclude Include="..\src\RecorderMgr\AVStreamWriter.h" />
-    <ClInclude Include="..\src\RecorderMgr\header.h" />
     <ClInclude Include="..\src\RecorderMgr\RecoderMgr.h" />
     <ClInclude Include="..\src\SdkWrapper.h" />
     <ClInclude Include="..\src\Util.h" />
@@ -128,9 +130,6 @@
     <ClCompile Include="..\src\gci-json.cc" />
     <ClCompile Include="..\src\log4z.cpp" />
     <ClCompile Include="..\src\Manager.cpp" />
-    <ClCompile Include="..\src\RecorderMgr\AVEncoder.cpp" />
-    <ClCompile Include="..\src\RecorderMgr\AVStreamWriter.cpp" />
-    <ClCompile Include="..\src\RecorderMgr\RecoderMgr.cpp" />
     <ClCompile Include="..\src\SdkWrapper.cpp" />
     <ClCompile Include="hdzb-server.cpp" />
     <ClCompile Include="hdzb-serverDlg.cpp" />

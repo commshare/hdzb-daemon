@@ -63,9 +63,6 @@
     <ClInclude Include="..\src\Manager.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\RecorderMgr\header.h">
-      <Filter>src\recorder</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\RecorderMgr\RecoderMgr.h">
       <Filter>src\recorder</Filter>
     </ClInclude>
@@ -97,15 +94,6 @@
     </ClCompile>
     <ClCompile Include="..\src\Manager.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\RecorderMgr\RecoderMgr.cpp">
-      <Filter>src\recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\RecorderMgr\AVEncoder.cpp">
-      <Filter>src\recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\RecorderMgr\AVStreamWriter.cpp">
-      <Filter>src\recorder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

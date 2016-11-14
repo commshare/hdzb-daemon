@@ -4,6 +4,10 @@
 #include <io.h>
 #include <assert.h>
 #include <process.h>
+#include <tchar.h>
+
+//RecoderMgr* CreateRecoderMgr();
+//#pragma (lib, "FFRecMgrDll.lib")
 
 struct VideoFrameHeader{
 	int width;
@@ -13,7 +17,12 @@ struct VideoFrameHeader{
 
 Manager::Manager( HWND& hwnd ):m_hWndMain(hwnd), m_loginCb(hwnd), m_logoutCb(hwnd)
 {
+	//m_hMoude = ::LoadLibrary(_T("FFRecMgrDll.dll"));
+	//typedef RecoderMgr* (*API_CreateRecoderMgr)();
+	//API_CreateRecoderMgr _func = (API_CreateRecoderMgr)::GetProcAddress(m_hMoude, "CreateRecoderMgr");
+	//m_recorderMgr = _func();
 
+	m_recorderMgr = new RecoderMgr;
 }
 
 
@@ -51,7 +60,7 @@ void Manager::OnRemoteVideoCallback( VideoFrame *pFrameData )
 	}
 
 	m_channel.SendStream(pFrameData, index);
-	m_recorderMgr.OnRemoteVideoFrame(pFrameData);
+	m_recorderMgr->OnRemoteVideoFrame(pFrameData);
 }
 
 // TODO: 发给外部进程，发给 recorder; 可能存在的画面尺寸转换。
@@ -59,7 +68,7 @@ void Manager::OnLocalVideoCallback( VideoFrame *pFrameData )
 {
 	// user ---> index 
 	m_channel.SendStream(pFrameData, 0);
-	m_recorderMgr.OnRemoteVideoFrame(pFrameData);
+	m_recorderMgr->OnRemoteVideoFrame(pFrameData);
 }
 
 void Manager::Logout()
@@ -338,7 +347,7 @@ void Manager::RequestRemoteView( const vector<string>& ids )
 		retCode = CancelAllView();
 	} else {
 		retCode = RequestViewList(ids, views);
-		m_recorderMgr.UpdateRemoteViewsIndex(ids);
+		m_recorderMgr->UpdateRemoteViewsIndex(ids);
 	}
 
 	if (retCode != AV_OK) {
@@ -433,7 +442,7 @@ void Manager::OnProcessMsg( Json& obj )
 // TODO: 拿到各端音频数据进行混音
 int Manager::AudioDataCallback( AudioFrame* audio_frame, AVAudioCtrl::AudioDataSourceType src_type )
 {
-	m_recorderMgr.OnAudioFrame(audio_frame, src_type);
+	m_recorderMgr->OnAudioFrame(audio_frame, src_type);
 	return AV_OK;
 }
 
@@ -473,15 +482,15 @@ bool Manager::StartRecord()
 	param.channel = 1;
 	param.format = AV_SAMPLE_FMT_S16;
 
-	m_recorderMgr.SetAVParam(param);
-	m_recorderMgr.SetPicMode(4);
-	m_recorderMgr.Start();
+	m_recorderMgr->SetAVParam(param);
+	m_recorderMgr->SetPicMode(4);
+	m_recorderMgr->Start();
 	return true;
 }
 
 bool Manager::StopRecord()
 {
-	m_recorderMgr.Stop();
+	m_recorderMgr->Stop();
 	return true;
 }
 

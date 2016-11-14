@@ -46,6 +46,7 @@ private:
 class Manager :
 	public SdkWrapper {
 	Channel m_channel;
+	HMODULE m_hMoude;
 public:
 	Manager(HWND& hwnd);
 	~Manager();
@@ -137,7 +138,7 @@ private:
 
 	SimpleLock m_identifier2pipeLock;
 	std::map<string, int> m_identifier2pipe;
-	RecoderMgr m_recorderMgr;
+	RecoderMgr* m_recorderMgr;
 
 	// µÇÂ½×´Ì¬
 	//bool m_isLogin;
