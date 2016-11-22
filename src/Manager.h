@@ -1,6 +1,7 @@
 #pragma once
 #include "./SdkWrapper.h"
 #include "tim.h"
+#include "tim_int.h"
 #include "log4z.h"
 #include "gci-json.h"
 #include "CustomWinMsg.h"
@@ -23,7 +24,6 @@ class Channel {
 	Manager* m_mgr;
 public:
 	int Init(Manager* mgr);
-
 	// 信令通道
 	void RecvMsg();
 	int SendMsg(Json& json);
@@ -107,6 +107,10 @@ public:
 	void OnRequestViewListComplete(std::vector<std::string> identifierList, std::vector<View> viewList, int32 result); // 结果
 	void OnCancelAllViewCompleteCallback(int ret);
 
+	// 推流
+	void RequestPushRtmp(bool onOff);
+	void OnRequestStartPushRtmpResult(int code, uint64_t chanel_id = -1, const char* url = NULL);
+	void OnRequestStopPushRtmpResult(int code);
 
 	// 获取视频数据
 	virtual void OnRemoteVideoCallback(VideoFrame *pFrameData);
@@ -131,6 +135,7 @@ private:
 
 	SimpleLock m_identifier2pipeLock;
 	std::map<string, int> m_identifier2pipe;
+	int64_t m_pushVideoId;
 
 	// 登陆状态
 	//bool m_isLogin;

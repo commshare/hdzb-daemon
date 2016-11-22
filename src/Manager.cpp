@@ -4,6 +4,37 @@
 #include <assert.h>
 #include <process.h>
 
+
+class PushVideoStartCallBack:public TIMValueCallBack<TIMStreamRsp&>
+{
+	virtual void OnSuccess(TIMStreamRsp& value) override 
+	{
+		TIMStreamRsp *rsp = new TIMStreamRsp(value);
+		::PostMessage(GetMainHWnd(), WM_ON_PUSH_VIDEO_START, (WPARAM)AV_OK, (LPARAM)rsp);
+	}
+
+	virtual void OnError(int code, const std::string &desc) override
+	{
+		::PostMessage(GetMainHWnd(), WM_ON_PUSH_VIDEO_START, (WPARAM)AV_ERR_FAILED, code);
+	}
+};
+
+class PushVideoStopCallBack: public TIMCallBack
+{
+	virtual void OnSuccess() override
+	{
+		::PostMessage(GetMainHWnd(), WM_ON_PUSH_VIDEO_STOP, (WPARAM)AV_OK, 0);
+	}
+	virtual void OnError(int code, const std::string &desc) override
+	{
+		::PostMessage(GetMainHWnd(), WM_ON_PUSH_VIDEO_STOP, (WPARAM)AV_ERR_FAILED, code);
+	}
+};
+static PushVideoStartCallBack s_pushVideoStartCallback;
+static PushVideoStopCallBack s_pushVideoStopCallback;
+
+
+
 struct VideoFrameHeader{
 	int width;
 	int height;
@@ -345,6 +376,8 @@ void Manager::RequestRemoteView( const vector<string>& ids )
 }
 
 
+
+#define MSG_TYPE_DaemonStart	"DaemonStart"
 #define MSG_TYPE_Init			"Init"
 #define MSG_TYPE_Login			"Login"
 #define MSG_TYPE_Logout			"Logout"
@@ -362,6 +395,8 @@ void Manager::RequestRemoteView( const vector<string>& ids )
 #define MSG_TYPE_CloseMic		"CloseMic"
 #define MSG_TYPE_OpenSpeaker	"OpenSpeaker"
 #define MSG_TYPE_CloseSpeaker	"CloseSpeaker"
+#define MSG_TYPE_StartPushRtmp  "StartPushRtmp"
+#define MSG_TYPE_StopPushRtmp	"StopPushRtmp"
 
 void Manager::OnProcessMsg( Json& obj )
 {
@@ -423,6 +458,12 @@ void Manager::OnProcessMsg( Json& obj )
 		OpenSpeaker();
 	} else if (_type == MSG_TYPE_CloseSpeaker) {
 		CloseSpeaker();
+	} else if (_type == MSG_TYPE_StartPushRtmp) {
+		RequestPushRtmp(true);
+	} else if (_type == MSG_TYPE_StopPushRtmp) {
+		RequestPushRtmp(false);
+	} else if (_type == MSG_TYPE_DaemonStart) {
+		SendMsg(0, MSG_TYPE_DaemonStart);
 	}
 }
 
@@ -455,6 +496,56 @@ void Manager::SendMsg( int retCode, const char* type )
 		json.AddProperty("code", Json(retCode));
 	}
 	m_channel.SendMsg(json);
+}
+
+void Manager::RequestPushRtmp( bool onOff )
+{
+	// check. in room ?
+
+	// 
+	TIMRoomInfo roomInfo;
+	roomInfo.relation_id = m_enterRoomParam.relation_id;
+	roomInfo.room_id = (int)GetRoomId();
+
+	TIMStreamParam streaParam;
+	//streaParam.push_data_type = 0; // hls
+	streaParam.push_data_type = 0; // rtmp
+	streaParam.encode = RTMP; // HLS
+
+	const char* TEST_ROOM_NAME_STR = "TEST";
+	streaParam.channel_name = TEST_ROOM_NAME_STR;
+	streaParam.channel_desc = TEST_ROOM_NAME_STR;
+	if (onOff)
+	{
+		TIMIntManager::get().RequestMultiVideoStreamerStart(roomInfo, streaParam, &s_pushVideoStartCallback);
+		return;
+	}
+	else
+	{
+		std::list<uint64_t> channel_ids;
+		channel_ids.push_back(m_pushVideoId);
+		TIMIntManager::get().RequestMultiVideoStreamerStop(roomInfo, streaParam, channel_ids, &s_pushVideoStopCallback);
+	}
+}
+
+void Manager::OnRequestStartPushRtmpResult( int code, uint64_t channel_id, const char* url /*= NULL*/ )
+{
+	if (code == AV_OK) {
+		m_pushVideoId = channel_id;
+
+		Json json = Json::Parse("{}");
+		json.AddProperty("type", Json("StartPushRtmp"));
+		json.AddProperty("code", Json(code));
+		json.AddProperty("param", Json(url));
+		m_channel.SendMsg(json);
+	} else {
+		SendMsg(code, "StartPushRtmp");
+	}
+}
+
+void Manager::OnRequestStopPushRtmpResult( int code )
+{
+	SendMsg(code, "StopPushRtmp");
 }
 
 int Channel::RecvMessage( char* buf, int size )
@@ -546,6 +637,9 @@ int Channel::Init( Manager* mgr )
 
 void Channel::RecvMsg()
 {
+	char* startup = "{\"type\": \"DaemonStart\"}";
+	m_mgr->OnRecvChannel(startup, strlen(startup));
+	LOGFMTD("send start messag: %s", startup);
 	while(true) {
 		char buf[1024];
 		int ret = RecvMessage(buf, sizeof(buf) - 1);

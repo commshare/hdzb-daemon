@@ -124,6 +124,7 @@
     <ClCompile Include="..\src\log4z.cpp" />
     <ClCompile Include="..\src\Manager.cpp" />
     <ClCompile Include="..\src\SdkWrapper.cpp" />
+    <ClCompile Include="..\src\Util.cpp" />
     <ClCompile Include="hdzb-server.cpp" />
     <ClCompile Include="hdzb-serverDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

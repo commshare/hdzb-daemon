@@ -117,6 +117,19 @@ avsdk.RequestViewList = function(identifiers) {
   });
 }
 
+avsdk.StartPushRtmp = function() {
+  avsdk.send({
+    type: 'StartPushRtmp'
+  });
+}
+
+avsdk.StopPushRtmp = function() {
+  avsdk.send({
+    type: 'StopPushRtmp'
+  });
+}
+
+
 
 avsdk.send = function(obj) {
   try {

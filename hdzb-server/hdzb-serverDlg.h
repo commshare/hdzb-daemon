@@ -32,6 +32,8 @@ protected:
 	afx_msg LONG OnCustomMsg(WPARAM wParam, LPARAM lParam); 
 	afx_msg LONG OnLogout(WPARAM wParam, LPARAM lParam); 
 	afx_msg LONG OnLogin(WPARAM wParam, LPARAM lParam); 
+	afx_msg LONG OnPushVideoStart(WPARAM wParam, LPARAM lParam); 
+	afx_msg LONG OnPushVideoStop(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
 
 private:

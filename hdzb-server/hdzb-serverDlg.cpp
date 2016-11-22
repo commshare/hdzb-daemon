@@ -54,8 +54,12 @@ class LogoutCallBack : public TIMCallBack
 };
 
 
+
+
 static LoginCallBack s_loginCallback;
-static LoginCallBack s_logoutCallback;
+static LogoutCallBack s_logoutCallback;
+
+
 
 // ChdzbserverDlg 对话框
 
@@ -77,6 +81,8 @@ BEGIN_MESSAGE_MAP(ChdzbserverDlg, CDialogEx)
 	ON_MESSAGE(WM_UI_CUSTOM, OnCustomMsg)
 	ON_MESSAGE(WM_ON_LOGIN, OnLogin)
 	ON_MESSAGE(WM_ON_LOGOUT, OnLogout)
+	ON_MESSAGE(WM_ON_PUSH_VIDEO_START, OnPushVideoStart)
+	ON_MESSAGE(WM_ON_PUSH_VIDEO_STOP, OnPushVideoStop)
 END_MESSAGE_MAP()
 
 
@@ -96,6 +102,8 @@ BOOL ChdzbserverDlg::OnInitDialog()
 	m_manager = new Manager(this->m_hWnd);
 	m_manager->Init();
 	AfxGetApp()->m_lpCmdLine;
+	g_hWndMain = this->m_hWnd;
+	SetMainHWnd(this->m_hWnd);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -158,6 +166,50 @@ LONG ChdzbserverDlg::OnLogin( WPARAM wParam, LPARAM lParam )
 		m_manager->StartAVSDK();
 	} else {
 		m_manager->OnLoginResult(retCode);
+	}
+	return 0;
+}
+
+LONG ChdzbserverDlg::OnPushVideoStart( WPARAM wParam, LPARAM lParam )
+{
+	int retCode = wParam;
+	if(retCode == AV_OK)
+	{
+		TIMStreamRsp* rsp = (TIMStreamRsp*)(lParam);
+		if (rsp->urls.size() > 0)
+		{
+			m_manager->OnRequestStartPushRtmpResult(retCode, rsp->channel_id, rsp->urls.begin()->url.c_str());
+		}
+		else
+		{
+			LOGFMTE("push success, but return url = null！channel_id=%llu", rsp->channel_id);
+			m_manager->OnRequestStartPushRtmpResult(-1);
+		}
+		delete rsp; //回收资源
+	}
+	else
+	{
+		int errCode = lParam;
+		LOGFMTE("request push rtmp error: %d", errCode);
+		m_manager->OnRequestStartPushRtmpResult(errCode);
+	}
+	return 0;
+}
+
+
+LONG ChdzbserverDlg::OnPushVideoStop( WPARAM wParam, LPARAM lParam )
+{
+	int retCode = wParam;
+	if(retCode == AV_OK)
+	{
+		LOGFMTI("stop push success");
+		m_manager->OnRequestStopPushRtmpResult(retCode);
+	}
+	else
+	{
+		int errCode = lParam;
+		LOGFMTE("stop push eorror: %d", errCode);
+		m_manager->OnRequestStopPushRtmpResult(retCode);
 	}
 	return 0;
 }

@@ -1,4 +1,8 @@
 #pragma once
+#include <windows.h>
+
+void SetMainHWnd(HWND hWnd);
+HWND GetMainHWnd();
 
 class SimpleLock
 {
